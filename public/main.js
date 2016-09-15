@@ -3,11 +3,30 @@ var socket = io();
 var pictionary = function() {
     var canvas, context;
     
+    var guessBox;
+    var onKeyDown = function(event) {
+        if (event.keyCode !=13) {
+            return;
+        }
+        console.log(guessBox.val());
+        var guess = guessBox.val();
+        socket.emit('guess', guess);
+        guessBox.val('');
+    };
+    
+    guessBox = $('#guess input');
+    guessBox.on('keydown', onKeyDown);
+    
+    var showGuess = function(guess) {
+        $('#answer').show().html('<div>' + 'Guess: ' + guess + '</div>');
+    };
+    
     //function to show drawing
     var draw = function(position) {
         context.beginPath();
         context.arc(position.x, position.y, 6, 0, 2 * Math.PI);
         context.fill();
+        $('#guess').show();
     };
     
     canvas = $('canvas');
@@ -35,8 +54,9 @@ var pictionary = function() {
         }
     });
     
-    //listener for draw event
+    //listener for draw and guess events
     socket.on('draw', draw);
+    socket.on('guess', showGuess);
 };
 
 $(document).ready(function() {

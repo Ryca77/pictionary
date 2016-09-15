@@ -11,10 +11,15 @@ var io = socket_io(server);
 io.on('connection', function (socket) {
     console.log('Client connected');
     
+    //broadcast user drawing to all connected sockets
     socket.on('draw', function(position) {
         socket.broadcast.emit('draw', position);
     });
-
+    
+    //broadcst guess to all connected sockets
+    socket.on('guess', function(guess) {
+        socket.broadcast.emit('guess', guess);
+    });
 
 });
 
