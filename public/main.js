@@ -3,6 +3,39 @@ var socket = io();
 var pictionary = function() {
     var canvas, context;
     
+    socket.emit('start', start);
+    
+    var showButton = function(start) {
+        $('#start').show();
+    };
+    
+    //NEED TO ADD THE BUTTON TRIGGER
+    //show word to first connected socket on button click
+    var words = [
+        "word", "letter", "number", "person", "pen", "class", "people",
+        "sound", "water", "side", "place", "man", "men", "woman", "women", "boy",
+        "girl", "year", "day", "week", "month", "name", "sentence", "line", "air",
+        "land", "home", "hand", "house", "picture", "animal", "mother", "father",
+        "brother", "sister", "world", "head", "page", "country", "question",
+        "answer", "school", "plant", "food", "sun", "state", "eye", "city", "tree",
+        "farm", "story", "sea", "night", "day", "life", "north", "south", "east",
+        "west", "child", "children", "example", "paper", "music", "river", "car",
+        "foot", "feet", "book", "science", "room", "friend", "idea", "fish",
+        "mountain", "horse", "watch", "color", "face", "wood", "list", "bird",
+        "body", "dog", "family", "song", "door", "product", "wind", "ship", "area",
+        "rock", "order", "fire", "problem", "piece", "top", "bottom", "king",
+        "space"
+    ];
+    
+    var word = words[Math.floor(Math.random()*words.length)];
+    console.log(word);
+    socket.emit('word', word);
+    
+    var showWord = function(word) {
+        $('#word').show().html('Your word: ' + word);
+    };
+    
+    //enter guess and show to all connected sockets 
     var guessBox;
     var onKeyDown = function(event) {
         if (event.keyCode !=13) {
@@ -17,8 +50,11 @@ var pictionary = function() {
     guessBox = $('#guess input');
     guessBox.on('keydown', onKeyDown);
     
+    //function to show guess
     var showGuess = function(guess) {
-        $('#answer').show().html('<div>' + 'Guess: ' + guess + '</div>');
+        $('#answer').show().html('Guess: ' + guess);
+        console.log(guess);
+        console.log(word);
     };
     
     //function to show drawing
@@ -43,7 +79,7 @@ var pictionary = function() {
         drawing = false;
     });
     
-    //make drawing with mouse and show to all connected sockets
+    //make drawing and show to all connected sockets
     canvas.on('mousemove', function(event) {
         var offset = canvas.offset();
         var position = {x: event.pageX - offset.left,
@@ -54,9 +90,12 @@ var pictionary = function() {
         }
     });
     
-    //listener for draw and guess events
+    //listener for show word, draw and guess events
+    socket.on('start', showButton);
+    socket.on('word', showWord);
     socket.on('draw', draw);
     socket.on('guess', showGuess);
+
 };
 
 $(document).ready(function() {

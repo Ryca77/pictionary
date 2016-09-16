@@ -8,8 +8,23 @@ app.use(express.static('public'));
 var server = http.Server(app);
 var io = socket_io(server);
 
+var players = [];
+
 io.on('connection', function (socket) {
     console.log('Client connected');
+    players.push(socket.id);
+    console.log(players);
+    var first = players[0];
+    
+    //show start button to first connected socket
+    socket.on('start', function(start) {
+        socket.broadcast.to(first).emit('start', start);
+    });
+    
+    //send word to all connected socket
+    socket.on('word', function(word) {
+        socket.broadcast.to(first).emit('word', word);
+    });
     
     //broadcast user drawing to all connected sockets
     socket.on('draw', function(position) {
