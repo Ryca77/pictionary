@@ -2,15 +2,19 @@ var socket = io();
 
 var pictionary = function() {
     var canvas, context;
+    var start = $('#start');
+    var playerType = $('#playertype');
     
     socket.emit('start', start);
     
+    //function to show start button to first connected socket
     var showButton = function(start) {
         $('#start').show();
+        if ($('#start').is(':visible')) {
+            playerType.html('You are the drawer');
+        }
     };
     
-    //NEED TO ADD THE BUTTON TRIGGER
-    //show word to first connected socket on button click
     var words = [
         "word", "letter", "number", "person", "pen", "class", "people",
         "sound", "water", "side", "place", "man", "men", "woman", "women", "boy",
@@ -26,11 +30,18 @@ var pictionary = function() {
         "rock", "order", "fire", "problem", "piece", "top", "bottom", "king",
         "space"
     ];
-    
+       
     var word = words[Math.floor(Math.random()*words.length)];
-    console.log(word);
-    socket.emit('word', word);
     
+    //show word to first connected socket on button click
+    start.on('click', function() {
+        console.log(word);
+        showWord(word);
+        socket.emit('word', word);
+        start.hide();
+    });
+    
+    //function to show word and player type to first connected socket
     var showWord = function(word) {
         $('#word').show().html('Your word: ' + word);
     };
@@ -53,8 +64,9 @@ var pictionary = function() {
     //function to show guess
     var showGuess = function(guess) {
         $('#answer').show().html('Guess: ' + guess);
-        console.log(guess);
-        console.log(word);
+        if (guess === word) {
+            console.log('correcto');
+        }
     };
     
     //function to show drawing
@@ -84,10 +96,15 @@ var pictionary = function() {
         var offset = canvas.offset();
         var position = {x: event.pageX - offset.left,
                         y: event.pageY - offset.top};
-        if (drawing === true) {
-            draw(position);
-            socket.emit('draw', position);
+        if (playerType.html() === 'You are the drawer') {
+            if (drawing === true) {
+                draw(position);
+                socket.emit('draw', position);
+            }
+        } else {
+            playerType.html('You are a guesser');
         }
+        
     });
     
     //listener for show word, draw and guess events
