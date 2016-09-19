@@ -7,11 +7,13 @@ var pictionary = function() {
     
     socket.emit('start', start);
     
-    //function to show start button to first connected socket
+    //function to show start button and player type to first connected socket
     var showButton = function(start) {
         $('#start').show();
         if ($('#start').is(':visible')) {
             playerType.html('You are the drawer');
+        } else {
+            playerType.html('You are a guesser');
         }
     };
     
@@ -41,7 +43,7 @@ var pictionary = function() {
         start.hide();
     });
     
-    //function to show word and player type to first connected socket
+    //function to show word to first connected socket
     var showWord = function(word) {
         $('#word').show().html('Your word: ' + word);
     };
@@ -56,6 +58,7 @@ var pictionary = function() {
         var guess = guessBox.val();
         socket.emit('guess', guess);
         guessBox.val('');
+        showGuess(guess);
     };
     
     guessBox = $('#guess input');
@@ -66,7 +69,14 @@ var pictionary = function() {
         $('#answer').show().html('Guess: ' + guess);
         if (guess === word) {
             console.log('correcto');
+            $('#result').show().html('Correct!')
+            $('#again').show();
+        } else {
+            $('#result').show().html('Incorrect, guess again!')
         }
+    //result doesn't work for guesser as the client never gets the word
+    //add functionality to restart game with different drawer when play again is clicked
+    
     };
     
     //function to show drawing
@@ -86,6 +96,7 @@ var pictionary = function() {
     var drawing = null;
     canvas.on('mousedown', function() {
         drawing = true;
+        $('#playertype').hide();
     });
     canvas.on('mouseup', function(){
         drawing = false;
@@ -101,10 +112,7 @@ var pictionary = function() {
                 draw(position);
                 socket.emit('draw', position);
             }
-        } else {
-            playerType.html('You are a guesser');
-        }
-        
+        } 
     });
     
     //listener for show word, draw and guess events

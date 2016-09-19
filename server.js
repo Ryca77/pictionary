@@ -21,7 +21,7 @@ io.on('connection', function (socket) {
         socket.broadcast.to(first).emit('start', start);
     });
     
-    //send word to all connected socket
+    //send word to first connected socket
     socket.on('word', function(word) {
         socket.broadcast.to(first).emit('word', word);
     });
